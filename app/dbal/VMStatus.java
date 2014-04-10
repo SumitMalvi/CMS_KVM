@@ -43,7 +43,7 @@ public class VMStatus extends TimerTask {
 			Dba db=new Dba();
 			inprepstmt = dbConn.prepareStatement("INSERT INTO VM VALUES(?,?,?,?)");
 			delprepstmt = dbConn.prepareStatement("DELETE FROM VM WHERE OID IN "+
-					"(SELECT OID FROM VM WHERE vmuuid = ? ORDER BY OID DESC OFFSET 35)");
+					"(SELECT OID FROM VM WHERE vmuuid = ? ORDER BY OID DESC OFFSET 36)");
 			//missing case for deleting inactive vm listho
 			while(true) {
 				hostList=db.getHostList();

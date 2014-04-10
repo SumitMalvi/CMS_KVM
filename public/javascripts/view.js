@@ -1,21 +1,8 @@
 /****************************************** TODO *************************************
-2. make the vm list table mulit-selectable. ( use CTRL for multi-select ).
-3. add identification tags to each listed vm.
-4. add more columns to the listing table.
-5. add tooltips where necessary.
-6. get host name from backend.
-7. start off with dynamic listing.
-9. units to be added for props.
-**************************************************************************************/
-
-/***************************************** TODO **************************************
-1. list out more parameters to add to host summary
-    *. no. of vms two columns [ active vms, inactive vms ]
-    *. no. of pools
-    *. no. of networks [optional]
-3. change the layout of the summary tab to a 3 columned table with alternate header and body.
-4. add the percentage usage to entries in storage list.
-4. add the capacity, allocation into tooltip.
+1. add more columns to the static listing table.
+2. add more boxes summary listing.
+3. add alert boxes to trivial functions.
+4. add confirmation boxes to non-trivial functions.
 ****************************************************************************************/
 
 var hostName = [];
@@ -34,8 +21,30 @@ var newTabFunctions = {
         },
     'tab-4' : /* function */
         function() {
-            console.log("new tab-4");
-    }
+            hostName.forEach(getMonitorList);
+            $("#monitoring").on("interval", {duration: 8000}, function () {
+                $.ajax({
+                    url: "/vm/list/runtime?hostName=" + hostName[0],
+                    type: "GET",
+                    dataType: "json",
+                    success: function (resp) {
+                        $("#monitoring .inner-table >tbody >tr").each(function () {
+                            var vmN = $(this).find(">td + td").html();
+                            for (var i = 0; i < resp.length; i++) {
+                                if (vmN == resp[i]['name']) {
+                                    var chart = $(this).find(".chart-container").highcharts();
+                                    chart.series[1].setData(resp[i]['cpu']);
+                                    chart.series[0].setData(resp[i]['memory']);
+                                }
+                            }
+                        });
+                    },
+                    error: function (xhr, status) {
+                        alert(status);
+                    }
+                });
+            });
+        }
 };
 
 var oldTabFunctions = {
@@ -53,7 +62,8 @@ var oldTabFunctions = {
         },
     'tab-4' : /* function */
         function() {
-            console.log("old tab-4");
+            $("#monitoring").off("interval");
+            removeMonitorList();
         }
 };
 
@@ -88,10 +98,10 @@ $("#static-list .fa-refresh").on("click", function( event ) {
 
 $("#static-list .fa-play").on("click", function( event ) {
     var vmName = $(".vm-row-selected td:nth-child(2)").html();
+    var params = $.param({"hostName": hostName[0], "vmName": vmName});
     $.ajax({
-        url: "/vm/start",
+        url: "/vm/start?" + params,
         type: "PUT",
-        data: { "vmName": vmName, "hostName" : hostName[0] },
         dataType: 'text',
         success: function (resp) {
             console.log( resp );
@@ -105,11 +115,10 @@ $("#static-list .fa-play").on("click", function( event ) {
 
 $("#static-list .fa-times").on("click", function( event ) {
     var vmName = $(".vm-row-selected td:nth-child(2)").html();
-    console.log(vmName);
+    var params = $.param({"hostName": hostName[0], "vmName": vmName});
     $.ajax({
-        url: "/vm/delete",
+        url: "/vm/delete?" + params,
         type: "DELETE",
-        data: { "vmName" : vmName, "hostName" : hostName[0] },
         dataType: "text",
         success: function( resp ) {
             console.log(resp);
@@ -122,31 +131,12 @@ $("#static-list .fa-times").on("click", function( event ) {
     $("#inner-content .fa-refresh").trigger("click");
 });
 
-$("#static-list .fa-stop").on("click", function( event ) {
-    var vmName = $(".vm-row-selected td:nth-child(2)").html();
-    console.log(vmName);
-    $.ajax({
-        url: "/vm/shutdown",
-        type: "PUT",
-        data: { "vmName" : vmName, "hostName" : hostName[0] },
-        dataType: "text",
-        success: function( resp ) {
-            console.log(resp);
-            $("#static-list .fa-refresh").triggerHandler("click");
-        },
-        error: function (xhr, status) {
-            alert("sorry there was a problem");
-        }
-    });
-});
-
 $("#static-list .fa-power-off").on("click", function( event ) {
-    var vmName = $(".vm-row-selected td:nth-child(2)").html();
-    console.log(vmName);
+    var vmName = $(".vm-row-selected td:nth-child(2)").html();    
+    var params = $.param({"hostName": hostName[0], "vmName": vmName});
     $.ajax({
-        url: "/vm/poweroff",
+        url: "/vm/poweroff?" + params,
         type: "PUT",
-        data: { "vmName" : vmName, "hostName" : hostName[0] },
         dataType: "text",
         success: function( resp ) {
             console.log(resp);
@@ -162,41 +152,120 @@ $("#storage-bar .fa-refresh").on("click", function (event) {
     getStorageList(hostName[0]);
 });
 
+$("#storage-bar .fa-times").on("click", function (event) {
+    if ($(".storage-row-selected").hasClass("p-head")) {
+        //delete the pool api call
+        var pN = $(".storage-row-selected").find(">span").html();
+        var params = $.param({"hostName": hostName[0], "poolName": pN});
+        $.ajax({
+            url: "/storage/pool/delete?" + params,
+            type: "DELETE",
+            dataType: "text",
+            success: function (resp) {
+                console.log(resp);
+            },
+            error: function (xhr, status) {
+                alert(status);
+            }
+        });
+    }
+    else if ($(".storage-row-selected").hasClass("v-head")){
+        //delete the volume api call
+        var vN = $(".storage-row-selected").find(">span").html();
+        var pN = $(".storage-row-selected").parent().siblings("div").find(">span").text();
+        var params = $.param({"hostName": hostName[0], "poolName": pN, "volName": vN});
+         
+        $.ajax({
+            url: "/storage/vol/delete?" + params,
+            type: "DELETE",
+            dataType: "text",
+            success: function (resp) {
+                console.log(resp);
+            },
+            error: function (xhr, status) {
+                alert(status);
+            }
+        });
+    }
+});
+
+$("#monitoring .fa-refresh").on("click", function (event) {
+    removeMonitorList();
+    hostName.forEach(getMonitorList);
+});
+
+$("#monitoring .fa-stop").on("click", function (event) {
+    var vN = $(".vm-monitoring-row-selected").find(">td + td").html();
+    console.log("shutdown " + vN);
+    var params = $.param({"hostName": hostName[0], "vmName": vN});
+    $.ajax({
+        url: "/vm/shutdown?" + params,
+        type: "PUT",
+        dataType: "text",
+        success: function( resp ) {
+            console.log(resp);
+        },
+        error: function (xhr, status) {
+            alert("sorry there was a problem");
+        }
+    });
+});
+
+$("#monitoring .fa-play").on("click", function (event) {
+    var vN = $(".vm-monitoring-row-selected").find(">td + td").html();
+    console.log("power off " + vN);
+    var params = $.param({"hostName": hostName[0], "vmName": vN});
+    $.ajax({
+        url: "/vm/resume?" + params,
+        type: "PUT",
+        dataType: "text",
+        success: function( resp ) {
+            console.log(resp);
+        },
+        error: function (xhr, status) {
+            alert("sorry there was a problem");
+        }
+    });
+});
+
+$("#monitoring .fa-pause").on("click", function (event) {
+    var vN = $(".vm-monitoring-row-selected").find(">td + td").html();
+    console.log("pause  " + vN);
+    var params = $.param({"hostName": hostName[0], "vmName": vN});
+    $.ajax({
+        url: "/vm/suspend?" + params,
+        type: "PUT",
+        dataType: "text",
+        success: function( resp ) {
+            console.log(resp);
+        },
+        error: function (xhr, status) {
+            alert("sorry there was a problem");
+        }
+    });
+});
+
 /****************************************** remove functions ***********************************/
 
 function removeSummary() {
-    $("#summary table tr > td.values").remove();   
+    $("#summary .inner-table >tbody >tr + tr").remove();   
 };
 
 function removeStaticList() {
     $("#static-list table tbody tr").remove();
 };
 
+function removeMonitorList () {
+    $("#monitoring .inner-table >tbody >tr").remove();
+};
+
 /******************************************** hostName functions *********************************/
 
 function getHostInfo( elem ) {
     $.getJSON( "/host/info?hostName=" + elem, function( resp ) {
-        var propList = [];
-        
-        for ( var prop in resp ) {
-            if( prop != undefined ) propList.push(prop);
-        }
-        
-        $("#summary table tr").each( function () {
-            var temp = propList.shift();
-            var temp2 = 0;
-            var unit = "";
-            if( temp == 'memory'){
-                resp[temp] = (Number.toInteger(parseInt(resp[temp]) / 1024)).toString();
-                unit = "<span class=\"unit\"> MB </span>";
-            }
-            else if ( temp == 'mhz' ) {
-                unit = "<span class=\"unit\"> MHz </span>";
-            }
-            console.log(typeof temp + temp);
-            
-            $( this ).append("<td class=\"values\">" + resp[temp] + unit + "</td>");
-        });
+        $("#summary .inner-table >tbody:nth-child(1)").append("<tr><td>" + resp['model'] + "</td><td>" + resp['CPU'] + "</td><td>" + Number.toInteger(resp['Memory']/1024) + "<span class=\"unit\"> MB <span></td></tr>");
+        $("#summary .inner-table >tbody:nth-child(2)").append("<tr><td>" + resp['Speed'] + "</td><td>" + resp['Threads'] + "</td><td>" + resp['Pools'] + "</td></tr>");
+        $("#summary .inner-table >tbody:nth-child(3)").append("<tr><td>" + resp['VM'] + "</td><td>" + resp['Networks'] + "</td></tr>");
     });
 };
 
@@ -238,7 +307,7 @@ function getStorageList (elem) {
         dataType: "json",
         success: function (pools) {
             for (var i = 0; i < pools.length; i++) {
-                var str = "<li id=\"pool" + i + "\"><i class=\"fa fa-caret-right fa-caret-down\"></i><span>" + pools[i].Name + "</span><ol style=\"display: none\"></ol></li>";
+                var str = "<li id=\"pool" + i + "\"><div class=\"p-head\"><i class=\"fa fa-caret-right fa-caret-down\"></i><span>" + pools[i].Name + "</span></div><ol style=\"display: none\"></ol></li>";
                 $("#storage-bar > ol.storage-list").append(str);  
                 $.ajax({
                     url: "/storage/vol/list",
@@ -255,7 +324,7 @@ function getStorageList (elem) {
                         for (var j = 0; j < vols.length; j++) {
                             circle_id = $(this).attr('id') + j;
                             console.log(circle_id);
-                            str = "<li>" + vols[j].Name + "<div id=\"" + circle_id +"\" class=\"circles\"></div>" + "</li>";
+                            str = "<li class=\"v-head\"><span>" + vols[j].Name + "</span><div id=\"" + circle_id +"\" class=\"circles\"></div>" + "</li>";
                             $(this).find('ol').append(str);
                             temp_number = vols[j].Allocation;
                             Circles.create({
@@ -268,6 +337,11 @@ function getStorageList (elem) {
                                 colors: ['#aaa', '#aaf'],
                                 duration: null
                             });
+                            $(this).find(".circles").qtip({
+                                content: {
+                                    text: "<ul style=\"margin: 0 0 0 0\"><li>Capacity: " + vols[j].Capacity + "<span class=\"unit\"> MB </span></li></ul"
+                                }
+                            });
                         }
                     },
                     error: function (xhr, resp) {
@@ -278,6 +352,83 @@ function getStorageList (elem) {
         },
         error: function (xhr, resp) {
             alert("error while getting pool list");
+        }
+    });
+};
+
+function getMonitorList (elem) {
+    $.ajax({
+        url: '/vm/list/runtime',
+        type: 'GET',
+        data: {"hostName": hostName[0]},
+        dataType: 'json',
+        success: function (resp) {
+            console.log(resp);
+            for (var i = 0; i < resp.length; i++) {
+                var str = "<tr><td>" + (i+1);
+                str += "</td><td>" + resp[i]['name'];
+                str += "</td><td>" + resp[i]['Persistant'];
+                str += "</td><td><div class=\"chart-container\" id=\"vm-" + (i+1);
+                str += "\"></div></td></tr>";
+                console.log($("#monitoring .inner-table >tbody").append(str));
+                var options = {
+                    "chart": {
+                        "type": "line",
+                        "width": 325,
+                        "height": 200,
+                        "spacingTop": 15,
+                        "spacingBottom": 10,
+                        "spacingLeft": 5,
+                        "spacingRight": 10
+                    },
+                    "title": {
+                        "text": null
+                    },
+                    "xAxis": {
+                        "title": {
+                            "text": null
+                        },
+                        "tickInterval": 3
+                    },
+                    "yAxis": {
+                        "title": {
+                            "text": null
+                        },
+                        "min": 0,
+                        "max": 100
+                    },
+                    "legend": {
+                        "enabled": false
+                    },
+                    "tooltip": {
+                        "enabled": false
+                    },
+                    "exporting": {
+                        "enabled": false
+                    },
+                    "credits": {
+                        "enabled": false
+                    },
+                    "series": [{
+                        "index": 1,
+                        "marker": {"enabled": false},
+                        "name": "cpu",
+                        "type": "spline",
+                        "data": resp[i]['cpu'],
+                    },
+                    {   
+                        "index": 0,
+                        "marker": {"enabled": false},
+                        "name": "memory",
+                        "type": "spline",
+                        "data": resp[i]['memory']
+                    }]
+                };
+                $('#vm-' + (i+1)).highcharts(options);
+            }
+        },
+        error: function (xhr, status) {
+            alert(status);
         }
     });
 };
@@ -339,13 +490,12 @@ $.ajax({
 /**************************** VMs table selection ************************************************/
 
 $("#static-list table.inner-table > tbody").on("click", "tr", function( event ) {
-    console.log("row selected");
     $(".vm-row-selected").removeClass("vm-row-selected");
     $( this ).addClass("vm-row-selected");
 });
 
 /***************************** ajax event handlers *********************/
-
+/******** note **********
 $(document).ajaxStart( function( event ) {
     console.log("ajax query start");
 });
@@ -354,7 +504,7 @@ $(document).ajaxStop( function( event ) {
     console.log("ajax query ends");
 });
 
-/******** note **********
+
 1. ajaxStart is triggered when an ajax query starts and it is not triggered for all until all the pending queries
 have been completed
 
@@ -367,50 +517,15 @@ have been completed
 Google like footnotes to be implemented using this.
 **********************/
 
-/******************* monitoring **************************/
-$(function () {
-        $('#container').highcharts({
-            title: {
-                text: 'Monthly Average Temperature',
-                x: -20 //center
-            },
-            subtitle: {
-                text: 'Source: WorldClimate.com',
-                x: -20
-            },
-            xAxis: {
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-            },
-            yAxis: {
-                title: {
-                    text: 'Temperature (°C)'
-                },
-                plotLines: [{
-                    value: 0,
-                    width: 1,
-                    color: '#808080'
-                }]
-            },
-            tooltip: {
-                valueSuffix: '°C'
-            },
-           series: [{
-                name: 'Tokyo',
-                data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
-            }]
-        });
-    });
-    
-    /*********************Create vm ****************************/
-    $('#vm-form').on("submit",function () {
+/*********************Create vm ****************************/
+$('#vm-form').on("submit",function () {
     var VMParam = {
-	name: document.getElementById("vm-name ").textContent,
-	vcpu:document.getElementById("vcpu").value,
-	os: document.getElementById("os").value,
-	bootdev: document.getElementById("bootdev ").value,
-	memory: document.getElementById("ram ").value
-};
+        name: document.getElementById("vm-name ").textContent,
+        vcpu:document.getElementById("vcpu").value,
+        os: document.getElementById("os").value,
+        bootdev: document.getElementById("bootdev ").value,
+        memory: document.getElementById("ram ").value
+    };
     console.log(VMParam);
 	$.ajax({
 		url: '/vm/create',
@@ -424,7 +539,6 @@ $(function () {
 		},
 		error: function (xhr, status) {
 			alert("	Sorry VM can not be created!");
-			
 		},
 	})
 });
@@ -432,23 +546,24 @@ $(function () {
 
 /****************** storage listing ******************************/
 
-$("#storage-bar").on("click", ".storage-list > li", function (event) {
-    $(this).find("ol").slideToggle();
-    $(this).find("i").toggleClass("fa-caret-right");
+$(".storage-list").on("click", "> li > div >i.fa", function (event) {
+    $(this).parent().siblings("ol").slideToggle();
+    $(this).parent().find("i").toggleClass("fa-caret-right");
 });
 
-/****************** circles **************************************/
-/******************** tool tips *****************************/
-/*var pool_id_str = "";
-for (var iter = 0; iter < 2; iter++) {
-    pool_id_str = "#pool" + (iter+1);
-    $(pool_id_str).qtip({
-        content: {
-            text: pool_list[iter].name
-        }
-    }); 
-}
-/*
-$('#pool1').qtip({
-    content: 'pool1'
-});*/
+$(".storage-list").on("click", ">li >div >span", function (event) {
+    $(".storage-row-selected").removeClass("storage-row-selected");
+    $(this).parent().addClass("storage-row-selected");
+});
+
+$(".storage-list").on("click", " ol >li", function (event) {
+    $(".storage-row-selected").removeClass("storage-row-selected");
+    $(this).addClass("storage-row-selected");
+});
+
+/********************* monitoring ********************/
+
+$("#monitoring .inner-table").on("click", ">tbody >tr", function () {
+    $(".vm-monitoring-row-selected").removeClass(".vm-monitoring-row-selected");
+    $(this).addClass("vm-monitoring-row-selected");
+});
