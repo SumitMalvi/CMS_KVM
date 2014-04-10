@@ -2,6 +2,9 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+#TEST
+POST /testPost	controllers.Application.testPost(hostName: String)
+
 # Home page
 GET     /                           controllers.Application.index()
 GET		/host/list					controllers.Application.getHostList()

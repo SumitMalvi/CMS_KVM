@@ -22,6 +22,11 @@ public class Application extends Controller {
 		return ok(index.render(""));
 	}
 	
+	public static Result testPost(String hostName) {
+		JsonNode json=request().body().asJson();
+		return ok(hostName + " post worked correctly name: " + json.findPath("name").asText() + "roll: " + json.findPath("roll").asText());
+	}
+	
 	public static Result getHostList()  {
 		try{
 			Dba db=new Dba();

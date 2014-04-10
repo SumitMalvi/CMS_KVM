@@ -532,7 +532,7 @@ $('#vm-form').on("submit",function () {
 		type: 'POST',
 		contentType: 'application/json',
 		//datatype: 'json',
-		data: JSON.stringify(VMParam),
+		data: VMParam,
 		success: function (data, textStatus, jqXHR) {
 			alert("VM Created Succesfully !! ");
 			
