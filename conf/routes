@@ -52,11 +52,11 @@ POST /storage/vol/create		controllers.Storage.createStorageVol(hostName : String
 DELETE /storage/vol/delete		controllers.Storage.deleteStorageVol(hostName : String, poolName : String, volName : String )
 
 #start network
-GET	 /network/start		controllers.Network.startNW(netName: String, hostName : String)
+PUT	 /network/start		controllers.Network.startNW(netName: String, hostName : String)
 #stop network
-GET	 /network/stop		controllers.Network.stopNW(netName : String, hostName : String)
+PUT	 /network/stop		controllers.Network.stopNW(netName : String, hostName : String)
 #delete network
-GET	 /network/delete		controllers.Network.deleteNW(netName : String, hostName : String)
+DELETE	 /network/delete		controllers.Network.deleteNW(netName : String, hostName : String)
 GET	 /network			controllers.Network.listNW()
 POST	 /network/create		controllers.Network.createNW()
 POST 	/network/addvm			controllers.Network.addVMtoNetwork()

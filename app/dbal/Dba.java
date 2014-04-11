@@ -157,10 +157,12 @@ public class Dba {
 
 	public ArrayList<ObjectNode> getNetList() throws SQLException {
 		
+		
+		
 		ArrayList<ObjectNode> list=new ArrayList<ObjectNode>();
 		
 		ObjectNode json=Json.newObject();
-		
+				
 		rs=stmt.executeQuery("SELECT NAME, HOST, MODE, BRIDGENAME, AUTOSTART FROM Network");
 		while(rs.next())
 		{
@@ -181,17 +183,17 @@ public class Dba {
 					json.put("status","Inactive");
 				//else
 				//throw new LibvirtException("Libvirt Error"); 
-				
+				list.add(json);
 				
 				
 			}
 			catch(LibvirtException e)
 			{
-				json.put("status","Not Connected");
+				System.out.println("Network with name '"+rs.getString("NAME")+"' is not available.");
 				
 			}
 			finally{
-				list.add(json);
+				
 				json=null;
 
 				

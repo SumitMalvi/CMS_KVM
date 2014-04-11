@@ -17,7 +17,8 @@ var newTabFunctions = {
         },
     'tab-3' : /* function */
         function() {
-            console.log("new tab-3");
+           
+            getNetList();
         },
     'tab-4' : /* function */
         function() {
@@ -58,7 +59,8 @@ var oldTabFunctions = {
         },
     'tab-3' : /* function */
         function() {
-            console.log("old tab-3");
+           
+            removeNetList();
         },
     'tab-4' : /* function */
         function() {
@@ -245,6 +247,62 @@ $("#monitoring .fa-pause").on("click", function (event) {
     });
 });
 
+$("#network .fa-refresh").on("click", function( event ) {
+    removeNetList();
+    getNetList();
+});
+
+$("#network .fa-play").on("click", function( event ) {
+    var netName = $(".net-row-selected td:nth-child(1)").html();
+    var params = $.param({"netName": netName, "hostName": hostName[0]});
+    $.ajax({
+        url: "/network/start?" + params,
+        type: "PUT",
+        dataType: 'text',
+        success: function (resp) {
+            console.log( resp );
+            $("#network .fa-refresh").triggerHandler("click");
+        },
+        error: function (xhr, status) {
+            alert("sorry there was a problem!");
+        }
+    });
+});
+
+$("#network .fa-times").on("click", function( event ) {
+    var netName = $(".net-row-selected td:nth-child(1)").html();
+    var params = $.param({"netName": netName, "hostName": hostName[0]});
+    $.ajax({
+        url: "/network/delete?" + params,
+        type: "DELETE",
+        dataType: "text",
+        success: function( resp ) {
+            console.log(resp);
+            $("#network .fa-refresh").triggerHandler("click");
+        },
+        error: function (xhr, status) {
+            alert("sorry there was a problem");
+        }
+    });
+    $("#inner-content .fa-refresh").trigger("click");
+});
+
+$("#network .fa-stop").on("click", function( event ) {
+    var netName = $(".net-row-selected td:nth-child(1)").html();    
+    var params = $.param({"netName": netName, "hostName": hostName[0]});
+    $.ajax({
+        url: "/network/stop?" + params,
+        type: "PUT",
+        dataType: "text",
+        success: function( resp ) {
+            console.log(resp);
+            $("#network .fa-refresh").triggerHandler("click");
+        },
+        error: function (xhr, status) {
+            alert("sorry there was a problem");
+        }
+    });
+});
 /****************************************** remove functions ***********************************/
 
 function removeSummary() {
@@ -253,6 +311,10 @@ function removeSummary() {
 
 function removeStaticList() {
     $("#static-list table tbody tr").remove();
+};
+
+function removeNetList() {
+    $("#network table tbody tr").remove();
 };
 
 function removeMonitorList () {
@@ -354,6 +416,46 @@ function getStorageList (elem) {
             alert("error while getting pool list");
         }
     });
+};
+
+function getNetList(elem){
+   
+    $.ajax({
+		url: "/network",
+		type: "GET",
+		dataType: 'json',
+        
+		success: function (json) {
+			$("#network table tbody").remove();
+			var str = "<tbody>";
+           
+            var propList = [];
+        
+        for( var prop in json[0] ) {
+            if( prop != undefined ) propList.push(prop);
+        }    
+			for( var i = 0; i < json.length ; i++ ) {
+                 console.log("Bind successful");
+				
+				for( var j = 0; j < propList.length ; j++ ) {
+                str += "	<td>"+json[i][propList[j]]+"</td >";
+                
+                }
+                
+                str += "<td><a href=\"#addvm\"><button id=\""+json[i][propList[0]]+"\" class=\"button-vm pure-button\" href=\"#addvm\"><span style=\"font-style:bold\">Add VMs</span></button> </a>  </td>";
+
+				str+="	</tr>";
+				
+
+		}
+		str+="</tbody>";
+		$("#net").append(str);
+        
+        },
+	error: function (xhr, status) {
+		alert("sorry there was a problem!");
+	},
+})
 };
 
 function getMonitorList (elem) {
@@ -475,16 +577,19 @@ $.ajax({
     success: function (json) {
         var i = 0;
         var str = "";
-
+        var str1 = "";
         while (json[i++]) {
             str += "<li class=\"ui-widget-content\">" + json[i - 1] + "</li>";
+            if (!json[i + 1]) {
+				str1 += "<option value='" + json[i - 1] + "'>" + json[i - 1] + "</option>";
+            }
+            $("#net-host").append(str1);
+            $("#selectable").append(str);
         }
-
-        $("#selectable").append(str);
     },
     error: function (xhr, status) {
         alert("sorry there was a problem!");
-    },
+    }
 });
 
 /**************************** VMs table selection ************************************************/
@@ -492,7 +597,43 @@ $.ajax({
 $("#static-list table.inner-table > tbody").on("click", "tr", function( event ) {
     $(".vm-row-selected").removeClass("vm-row-selected");
     $( this ).addClass("vm-row-selected");
+    console.log("row selected");
 });
+
+
+/**************************** Network table selection ************************************************/
+
+$("#network table.inner-table > tbody").on("click", "tr", function( event ) {
+    $(".net-row-selected").removeClass("net-row-selected");
+    $( this ).addClass("net-row-selected");
+    console.log("row selected");
+});
+
+
+/****************** storage listing ******************************/
+
+$(".storage-list").on("click", "> li > div >i.fa", function (event) {
+    $(this).parent().siblings("ol").slideToggle();
+    $(this).parent().find("i").toggleClass("fa-caret-right");
+});
+
+$(".storage-list").on("click", ">li >div >span", function (event) {
+    $(".storage-row-selected").removeClass("storage-row-selected");
+    $(this).parent().addClass("storage-row-selected");
+});
+
+$(".storage-list").on("click", " ol >li", function (event) {
+    $(".storage-row-selected").removeClass("storage-row-selected");
+    $(this).addClass("storage-row-selected");
+});
+
+/********************* monitoring ********************/
+
+$("#monitoring .inner-table").on("click", ">tbody >tr", function () {
+    $(".vm-monitoring-row-selected").removeClass(".vm-monitoring-row-selected");
+    $(this).addClass("vm-monitoring-row-selected");
+});
+
 
 /***************************** ajax event handlers *********************/
 /******** note **********
@@ -532,7 +673,7 @@ $('#vm-form').on("submit",function () {
 		type: 'POST',
 		contentType: 'application/json',
 		//datatype: 'json',
-		data: VMParam,
+		data: 'VMParam',
 		success: function (data, textStatus, jqXHR) {
 			alert("VM Created Succesfully !! ");
 			
@@ -543,27 +684,34 @@ $('#vm-form').on("submit",function () {
 	})
 });
 
-
-/****************** storage listing ******************************/
-
-$(".storage-list").on("click", "> li > div >i.fa", function (event) {
-    $(this).parent().siblings("ol").slideToggle();
-    $(this).parent().find("i").toggleClass("fa-caret-right");
+$('#network-form').on("submit",function () {
+//event.preventDefault();
+    var NetParam = {
+	name: document.getElementById("name").textContent,
+	host:document.getElementById("net-host").value,
+	mode: document.getElementById("mode").value,
+	bridgename: document.getElementById("bridgename").textContent,
+	dev: document.getElementById("dev ").value,
+	ipv: document.getElementsByName("ipv ").textContent,
+	addrstart: document.getElementById("addrstart").textContent,
+	addrend: document.getElementById("addrend").textContent,
+	autostart: document.querySelector('#autostart:checked').value
+};
+    console.log(NetParam);
+	$.ajax({
+		url: 'network/create',
+		type: 'POST',
+		contentType: 'application/json',
+		//datatype: 'json',
+		data: 'NetParam',
+		success: function (data, textStatus, jqXHR) {
+			alert("Network Created Succesfully !! ");
+			
+		},
+		error: function (xhr, status) {
+			alert("	Sorry Network can not be created!");
+			
+		},
+	})
 });
 
-$(".storage-list").on("click", ">li >div >span", function (event) {
-    $(".storage-row-selected").removeClass("storage-row-selected");
-    $(this).parent().addClass("storage-row-selected");
-});
-
-$(".storage-list").on("click", " ol >li", function (event) {
-    $(".storage-row-selected").removeClass("storage-row-selected");
-    $(this).addClass("storage-row-selected");
-});
-
-/********************* monitoring ********************/
-
-$("#monitoring .inner-table").on("click", ">tbody >tr", function () {
-    $(".vm-monitoring-row-selected").removeClass(".vm-monitoring-row-selected");
-    $(this).addClass("vm-monitoring-row-selected");
-});

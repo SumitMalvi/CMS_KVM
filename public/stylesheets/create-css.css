@@ -1,9 +1,14 @@
+@import url("Font-Awesome/css/font-awesome.css");
+ .edit {
+    color: blue;
+    text-decoration: underline
+}
 .modalDialog {
-    position: fixed;
-    //font-family: Arial, Helvetica, sans-serif;
+    position: absolute;
+    font-family: Arial, Helvetica, sans-serif;
     top: 0;
     right: 0;
-    bottom: 0;
+    bottom: -40px;
     left: 0;
     background: rgba(0, 0, 0, 0.8);
     z-index: 99999;
@@ -13,20 +18,18 @@
     transition: opacity 400ms ease-in;
     pointer-events: none;
 }
+
 .modalDialog:target {
     opacity: 1;
     pointer-events: auto;
 }
 .modalDialog > div {
-    width: 400px;
+    width: 470px;
     position: relative;
-    margin: 10% auto;
+    margin: 5% auto;
     padding: 5px 20px 13px 20px;
     border-radius: 10px;
-    background: #fff;
-    background: -moz-linear-gradient(#fff, #999);
-    background: -webkit-linear-gradient(#fff, #999);
-    background: -o-linear-gradient(#fff, #999);
+    background: white;
 }
 .close {
     background: #606061;
@@ -48,15 +51,16 @@
 }
 .submit {
     background: #606061;
-    color: #FFFFFF;
-    line-height: 25px;
+    color: white;
+    line-height: 50px;
     position: absolute;
-    right: 200px;
+    left: 170px;
     text-align: center;
-    bottom: -20px;
-    width: 50px;
+    bottom: -40px;
+    width: 140px;
+    font-size: 25px;
     text-decoration: none;
-    font-weight: bold;
+    //font-weight: bold;
     -webkit-border-radius: 12px;
     -moz-border-radius: 12px;
     border-radius: 12px;
@@ -65,5 +69,62 @@
     box-shadow: 1px 1px 3px #000;
 }
 .close:hover {
-    background: #00d9ff;
+    background: #669;
 }
+.submit:hover {
+    background: #669;
+}
+
+/*
+#net {
+    position: relative;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+    font-size: 12px;
+    background: inherit;
+    margin-left: 45px;
+    margin-right: 45px;
+    margin-top: 10px;
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+#net th {
+    font-size: 18px;
+    font-weight: normal;
+    color: #039;
+    padding: 10px 8px;
+    border-bottom: 2px solid #6678b1;
+    border-top: 2px solid #6678b1;
+    
+}
+#net td {
+    border-bottom: 1px solid #ccc;
+    color: #669;
+    height: auto;
+    padding: 6px 8px;
+    padding-bottom: 10px;
+    font-size:14px;
+}
+#net tbody tr:hover td {
+    color: #669;
+}*/
+
+#config{
+ display:none;
+}
+/*
+input[type="checkbox"] {
+    display: none;
+}
+input[type="checkbox"] + label span {
+    display: inline-block;
+    width: 19px;
+    height: 19px;
+    margin: -1px 4px 0 0;
+    vertical-align: middle;
+    background: url(check_radio_sheet.png) left top no-repeat;
+    cursor: pointer;
+}
+input[type="checkbox"]:checked + label span {
+    background: url(check_radio_sheet.png) -19px top no-repeat;
+}*/

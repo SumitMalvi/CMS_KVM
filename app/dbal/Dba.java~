@@ -1,3 +1,4 @@
+
 package dbal;
 
 import java.sql.Connection;
@@ -10,7 +11,15 @@ import org.libvirt.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import org.libvirt.LibvirtException;
+import org.libvirt.Network;
+
+import model.Host;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import play.db.DB;
+import play.libs.Json;
 
 public class Dba {
 	Connection dbConn;
@@ -23,7 +32,7 @@ public class Dba {
 	
 	public String getIP(String hostName) throws SQLException {
 		String hostIP=null;		
-		String query="SELECT hostIP FROM Host WHERE hostName = '"+ hostName+"'";
+		String query="SELECT hostIP FROM Host WHERE hostName = '"+ hostName+"' AND active = '1'";
 		rs = stmt.executeQuery(query);
 		if(rs.next()){
 			hostIP=rs.getString("hostIP");
@@ -39,18 +48,19 @@ public class Dba {
 		
 		ArrayList<String> hostList;
 		stmt=dbConn.createStatement();
-	  	String query="SELECT hostName FROM Host";
-	  	rs = stmt.executeQuery(query);
-	  	hostList=new ArrayList<String>();
-	  	while(rs.next()){
-	  		hostList.add(rs.getString("hostName"));
-	  	}
-	  	rs.close();
-	  	return hostList;
+		String query="SELECT hostName FROM Host where active = '1'";
+		rs = stmt.executeQuery(query);
+		hostList=new ArrayList<String>();
+		while(rs.next()){
+			hostList.add(rs.getString("hostName"));
+		}
+		rs.close();
+		return hostList;
 	}
-
+	
 	public boolean ishostExist(String hostName) throws SQLException {
-		rs=stmt.executeQuery("SELECT COUNT(*) AS total FROM Host WHERE hostName = '"+hostName+"'");
+		rs=stmt.executeQuery("SELECT COUNT(*) AS total FROM Host " +
+				"WHERE hostName = '"+hostName+"' AND active = '1' ");
 		if(rs.next()) {
 			if(rs.getInt("total")!=0) {
 				rs.close();
@@ -64,7 +74,7 @@ public class Dba {
 		return false;					
 	}
 	
-/*	public boolean isIPExist(String hostIP) throws SQLException {
+	/*	public boolean isIPExist(String hostIP) throws SQLException {
 		rs=stmt.executeQuery("SELECT COUNT(*) AS total FROM Host WHERE hostIP = '"+hostIP+"'");
 		if(rs.next()) {
 			if(rs.getInt("total")!=0) {
@@ -85,7 +95,39 @@ public class Dba {
 		stmt.executeUpdate("DELETE FROM Host WHERE hostIP = '"+hostIP+"'");
 		return;
 	}
-	*/	
+
+	 */	
+	public int getStoreID (String hostName) throws SQLException {
+		Boolean storeID=null;		
+		String query="SELECT nfs1,nfs2,nfs3 FROM Host WHERE hostName = '"+ hostName+"' AND active = '1'";
+		rs = stmt.executeQuery(query);
+		if(rs.next()){
+			storeID=rs.getBoolean(1);
+			if(storeID) {
+				storeID=rs.getBoolean(2);
+				if(storeID) {
+					storeID=rs.getBoolean(3);
+					if(storeID) {
+						rs.close();
+						return 4;
+					} else {
+						rs.close();
+						return 3;
+					}
+				} else {
+					rs.close();
+					return 2;
+				}
+			} else {
+				rs.close();
+				return 1;
+			}				
+			
+		} else {		
+			rs.close();
+			return 0;
+		}			
+	}
 	public boolean isName(String name) throws SQLException {
 		rs=stmt.executeQuery("SELECT COUNT(*) AS total FROM Network WHERE NAME = '"+name+"'");
 		if(rs.next()) {
@@ -99,8 +141,6 @@ public class Dba {
 		}
 		rs.close();
 		return false;					
-	
-	
 	}
 	
 	
@@ -108,21 +148,22 @@ public class Dba {
 	public void addNetwork(String name, String hostName, String mode, String bridgeName, String autostart) throws SQLException {
 		stmt.executeUpdate("INSERT INTO Network VALUES('"+name+"','"+hostName+"','"+mode+"','"+ bridgeName+"','"+ autostart+"')");
 		
+	}
 	
-}
-
-
 	public void deleteNetwork(String name) throws SQLException {
 		stmt.executeUpdate("DELETE FROM Network WHERE NAME = '"+name+"'");
 		
 	}
-	
-public ArrayList<ObjectNode> getNetList() throws SQLException {
-	
+
+	public ArrayList<ObjectNode> getNetList() throws SQLException {
+		
+		if()
+		
+		
 		ArrayList<ObjectNode> list=new ArrayList<ObjectNode>();
 		
 		ObjectNode json=Json.newObject();
-		
+				
 		rs=stmt.executeQuery("SELECT NAME, HOST, MODE, BRIDGENAME, AUTOSTART FROM Network");
 		while(rs.next())
 		{
@@ -132,42 +173,43 @@ public ArrayList<ObjectNode> getNetList() throws SQLException {
 			json.put("mode",rs.getString("MODE"));
 			json.put("bridgename",rs.getString("BRIDGENAME"));
 			json.put("autostart",rs.getString("AUTOSTART"));
-			
-	  	try{
-	  			Host tempHost=new Host(rs.getString("HOST"));
+
+			try{
+				Host tempHost=new Host(rs.getString("HOST"));
 				Network net=tempHost.conn.networkLookupByName(rs.getString("NAME"));
 				tempHost.close();
 				if(net.isActive()==1)
-	  				json.put("status","Active");
-	  			else if(net.isActive()==0)
-	  			json.put("status","Inactive");
-	  			//else
-	  			//throw new LibvirtException("Libvirt Error"); 
-	  	
-	  	
-	  	
+					json.put("status","Active");
+				else if(net.isActive()==0)
+					json.put("status","Inactive");
+				//else
+				//throw new LibvirtException("Libvirt Error"); 
+				list.add(json);
+				
+				
 			}
 			catch(LibvirtException e)
 			{
-				json.put("status","Not Connected");
+				System.out.println("Network with name '"+rs.getString("NAME")+"' is not available.");
 				
 			}
 			finally{
-				list.add(json);
+				
 				json=null;
-		
+
+				
 			}
 		}
-	
+		
 		rs.close();
 		if(stmt!=null)
-		stmt.close();
+			stmt.close();
 		return list;
 		
+		
+		
+	}
 	
-	  		
-}
-
 	public void close() throws SQLException {
 		if(rs!=null)
 			rs.close();

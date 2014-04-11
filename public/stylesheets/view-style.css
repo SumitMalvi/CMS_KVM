@@ -10,7 +10,15 @@
     background-color: #dd9999;
 }
 
+#network table.inner-table > tbody > tr:hover {
+    background-color: #dd9999;
+}
+
 .vm-row-selected { 
+    background-color: #cc9999;
+}
+
+.net-row-selected { 
     background-color: #cc9999;
 }
 
@@ -180,6 +188,7 @@
     height: 450px;
     float: right;
     overflow-y: scroll;
+    overflow-x: scroll;
 }
 #git {
     padding: 13px;
@@ -263,6 +272,7 @@ body {
     font-weight: bold;
     text-align: center;
 }
+
 
 .chart-legend {
     height: 10px;
