@@ -572,6 +572,58 @@ public class Host {
 		
 	}
 	
+	public boolean addNetInterface(String domainName, String bridgeName, String hostName)
+	{
+	String xml=new String();
+	try
+	{
+		Host tempHost=new Host(hostName);
+		Domain dom=tempHost.conn.domainLookupByName(domainName);
+		tempHost.close();
+			
+		xml=dom.getXMLDesc(1);
+		System.out.println(xml);
+
+	}
+	catch (LibvirtException e) {
+	
+			System.out.println("Libvirt Exception: Domain with domain name "+domainName+" not found");
+			return false;	
+	}
+	catch(SQLException e) {
+			System.out.println(e.getMessage());
+			return false;
+	}
+		int startindex=xml.indexOf("<device>");
+		int endindex=xml.indexOf("</interface>",startindex)+13;
+		startindex=xml.indexOf("</domain>")+9;
+		String xml2=new String();
+		String xml3=new String();
+		xml3=xml.substring(endindex,startindex);
+		xml2=xml.substring(0,endindex-1);
+		xml2=xml2.concat("<interface type='bridge'>");
+    		xml2=xml2.concat("<source bridge='"+bridgeName+"'/>");
+ 		xml2=xml2.concat("<model type='virtio'/> </interface>");  // try this if you experience problems with VLANs
+ 		xml=xml2.concat(xml3);
+ 		try{
+ 		Domain dom=conn.domainDefineXML(xml);
+ 		if(dom==null)
+ 		{
+ 			System.out.println("Domain redefine failed");
+ 			return false;
+ 		}
+ 		return true;
+ 		
+ 		
+ 		}
+ 		catch (LibvirtException e) {
+			System.out.println(e.getMessage());
+			
+			return false;	
+		}
+		
+ 		
+	}
 	
 	public int startNW(String networkName, String hostName) throws LibvirtException, SQLException {
 		try{
