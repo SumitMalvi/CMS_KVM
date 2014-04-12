@@ -3,6 +3,8 @@
 2. add more boxes summary listing.
 3. add alert boxes to trivial functions.
 4. add confirmation boxes to non-trivial functions.
+5. check delete storage api's.
+6. correct the create vm api.
 ****************************************************************************************/
 
 var hostName = [];
@@ -519,31 +521,22 @@ Google like footnotes to be implemented using this.
 
 /*********************Create vm ****************************/
 $('#vm-form').on("submit",function () {
-    var VMParam = {
-        name: document.getElementById("vm-name ").textContent,
-        vcpu:document.getElementById("vcpu").value,
-        os: document.getElementById("os").value,
-        bootdev: document.getElementById("bootdev ").value,
-        memory: document.getElementById("ram ").value
-    };
-    console.log(VMParam);
+var param = '{"vmName": "' + $("#vm-name").val() + '", "vcpu": ' + $("#vcpu").val() + ', "memory": ' + $("#ram").val() + ', "bootType": "' + $("#bootdev").val() + '", "iso": "' + $("#os").val() + '"}';
+    console.log(param);
 	$.ajax({
-		url: '/vm/create',
+		url: '/vm/create?hostName=' + hostName[0],
 		type: 'POST',
 		contentType: 'application/json',
-		//datatype: 'json',
-		data: VMParam,
-		success: function (data, textStatus, jqXHR) {
-			alert("VM Created Succesfully !! ");
-			
+		datatype: 'text',
+		data: param,
+		success: function (resp) {
+			alert(resp);
 		},
 		error: function (xhr, status) {
 			alert("	Sorry VM can not be created!");
 		},
-	})
+	});
 });
-
-
 /****************** storage listing ******************************/
 
 $(".storage-list").on("click", "> li > div >i.fa", function (event) {

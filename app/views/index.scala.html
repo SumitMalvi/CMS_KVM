@@ -117,6 +117,14 @@
                     <i class="fa fa-times fa-2x icons"></i>
                     <i class="fa fa-plus fa-2x icons"></i>
                 </div>
+                <table class="pure-table inner-table">
+                    <thead>
+                        
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
             </div>
             <div id="monitoring">
                 <div class="button-bar">
@@ -143,8 +151,6 @@
  <div id="createVM" style="color:#669" class="modalDialog">
         <div>
             <a onclick="switch_tab(2)" href="#static-list" title="Close" class="close">X</a>
-
-
             <form id="vm-form" class="pure-form pure-form-aligned" >
                 <fieldset>
                     <legend style="left:20px">
@@ -160,7 +166,6 @@
                         </div>
                     <div class="pure-control-group">
                         <label for "vcpu">No. of Virtual CPUs:</label>
-
                         <select id="vcpu" name="vcpu" class="pure-input-1-2" required>
                             <option value="1">1</option>
                             <option value="2">2</option>
@@ -169,41 +174,29 @@
                         </select>
                     </div>
                     <div class="pure-control-group">
-                        <label for="ram">
-                            RAM(in MB):</label>
-
-                        <select id="ram" name="ram" class="pure-input-1-2" required>
-                            <option value="1">512</option>
-                            <option value="2">1024</option>
-                            <option value="3">2048</option>
-                            <option value="4">4096</option>
-                        </select>
+                        <label for="ram">RAM(in MB):</label>
+                        <input id="ram" type="text" placeholder="ram" required>
                     </div>
                     <div class="pure-control-group">
                         <label for="bootdev">Boot Device:</label>
                         <select id="bootdev" name="bootdev" class="pure-input-1-2" required>
+                            <option value="hd">Hard Disk</option>
                             <option value="1">CD-ROM</option>
-                            <option value="2">Hard Disk</option>
                             <option value="3">Network Boot</option>
-
                         </select>
-
                     </div>
                     <div class="pure-control-group">
                         <label for="os">Select OS:</label>
                         <select id="os" name="os" class="pure-input-1-2" required>
-                            <option value="1">windows</option>
-                            <option value="2">ubuntu-13.10-desktop-amd64</option>
-                            <option value="3">ubuntu-13.04-desktop-amd64</option>
+                            <option value="ubuntu-12.04.2-desktop-amd64">ubuntu-12.04.2-desktop-amd64</option>
+                            <option value="ubuntu-13.04-desktop-amd64">ubuntu-13.04-desktop-amd64</option>
                         </select>
-
                     </div>
 
                     <input id="submit-vm" type="submit" class="submit" text="Create"/>
                 </fieldset>
             </form>
         </div>
-
     </div>
 </body>
     <script src="@routes.Assets.at("javascripts/view.js")"></script>
