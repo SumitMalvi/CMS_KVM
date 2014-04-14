@@ -1,4 +1,4 @@
-    @(filter: String)
+ @(filter: String)
     <!doctype html>
     <html lang="en">
 
@@ -14,168 +14,158 @@
         <script src="@routes.Assets.at("javascripts/jquery.timer.js")"></script>
         <link rel="stylesheet" type="text/css" href="@routes.Assets.at("stylesheets/create-css.css")">
         <title>CM Server</title>
-            
         <script type="text/javascript">
-            function toggle() {
-                document.getElementById("basic").style.display = "none";
-                document.getElementById("config").style.display = "block";
+            function toggle()
+            {
+                document.getElementById("basic").style.display="none";
+                document.getElementById("config").style.display="block";
             }
         </script>
     </head>
 
-    <body>
-        <div id="top-bar">
-            <img src="@routes.Assets.at("images/cms.small.png")" id="logo">
-            <a href="http://github.com/ajinkya4649/CMS_KVM/" target="_blank"><i class="fa fa-github fa-2x" id="git"></i></a>
-            <div class="pure-menu pure-menu-open pure-menu-horizontal" id="navbar">
-                <ul>
-                    <li>
-                        <a href="#">Home</a>
-                    </li>
-                    <li>
-                        <a href="#">About</a>
-                    </li>
-                    <li>
-                        <a href="#">Sign Out</a>
-                    </li>
+<body>
+    <div id="top-bar">
+        <img src="@routes.Assets.at("images/cms.small.png")" id="logo">
+        <a href="http://github.com/ajinkya4649/CMS_KVM/" target="_blank"><i class="fa fa-github fa-2x" id="git"></i></a>
+        <div class="pure-menu pure-menu-open pure-menu-horizontal" id="navbar">
+            <ul>
+                <li>
+                    <a href="#">Home</a>
+                </li>
+                <li>
+                    <a href="#">About</a>
+                </li>
+                <li>
+                    <a href="#">Sign Out</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="content">
+        <div id="sidebar">
+            <b style="padding: 5%;">KVM Hosts</b><i class="fa fa-refresh icons"></i>
+            <ol id="selectable" title="click to select (hold down CTRL for multi-select)">
+            </ol>
+        </div>
+        <div id="storage-bar">
+            <b style="padding: 5%;">Disks</b><i class="fa fa-refresh icons"></i><i class="fa fa-times icons"></i>
+            <ol class="storage-list">
+            </ol>
+        </div>
+        <div id="inner-content">
+            <div class="tab-area">
+                <ul class="tab-list">
+                    <li class="tab" id="tab-1"><a class="tab-text" href="#summary" title="host summary">HOSTs</a></li>
+                    <li class="tab" id="tab-2"><a class="tab-text" href="#static-list" title="List all vm's of selected hosts">VMs</a></li>
+                    <li class="tab" id="tab-3"><a class="tab-text" href="#network" title="list networks">NETWORKs</a></li>
+                    <li class="tab" id="tab-4"><a class="tab-text" href="#monitoring" title="monitor vm's of selected hosts">MONITOR</a></li>
                 </ul>
             </div>
-        </div>
-        <div id="content">
-            <div id="sidebar">
-                <b style="padding: 5%;">KVM Hosts</b><i class="fa fa-refresh icons"></i>
-                <ol id="selectable" title="click to select (hold down CTRL for multi-select)">
-                </ol>
-            </div>
-            <div id="storage-bar">
-                <b style="padding: 5%;">Disks</b><i class="fa fa-refresh icons"></i><i class="fa fa-times icons"></i>
-                <ol class="storage-list">
-                </ol>
-            </div>
-            <div id="inner-content">
-                <div class="tab-area">
-                    <ul class="tab-list">
-                        <li class="tab" id="tab-1"><a class="tab-text" href="#summary" title="host summary">HOSTs</a></li>
-                        <li class="tab" id="tab-2"><a class="tab-text" href="#static-list" title="List all vm's of selected hosts">VMs</a></li>
-                        <li class="tab" id="tab-3"><a class="tab-text" href="#network" title="list networks">NETWORKs</a></li>
-                        <li class="tab" id="tab-4"><a class="tab-text" href="#monitoring" title="monitor vm's of selected hosts">MONITOR</a></li>
-                    </ul>
+            <div id="summary">
+                <div class="button-bar">
+                    <i class="fa fa-refresh fa-2x icons"></i>
                 </div>
-                <div id="summary">
-                    <div class="button-bar">
-                        <i class="fa fa-refresh fa-2x icons"></i>
-                    </div>
-                    <table class="inner-table">
-                        <tbody>
-                            <tr>
-                                <td class="inner-table-header">Architecture</td>
-                                <td class="inner-table-header">Cpus</td>
-                                <td class="inner-table-header">Memory</td>
-                            </tr>
-                        </tbody>
-                        <tbody>                        
-                            <tr>
-                                <td class="inner-table-header">Speed</td>
-                                <td class="inner-table-header">Threads</td>
-                                <td class="inner-table-header">Pools</td>
-                            </tr>
-                        </tbody>
-                        <tbody>
-                            <tr>
-                                <td class="inner-table-header">VMs</td>
-                                <td class="inner-table-header">Networks</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <table class="inner-table">
+                    <tbody>
+                        <tr>
+                            <td class="inner-table-header">Architecture</td>
+                            <td class="inner-table-header">Cpus</td>
+                            <td class="inner-table-header">Memory</td>
+                        </tr>
+                    </tbody>
+                    <tbody>                        
+                        <tr>
+                            <td class="inner-table-header">Speed</td>
+                            <td class="inner-table-header">Threads</td>
+                            <td class="inner-table-header">Pools</td>
+                        </tr>
+                    </tbody>
+                    <tbody>
+                        <tr>
+                            <td class="inner-table-header">VMs</td>
+                            <td class="inner-table-header">Networks</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="static-list">
+                <div class="button-bar">
+                    <i class="fa fa-refresh fa-2x icons" title="refresh list"></i>
+                    <i class="fa fa-play fa-2x icons" title="start vm"></i>
+                    <i class="fa fa-power-off fa-2x icons" title="poweroff vm"></i>
+                    <i class="fa fa-times fa-2x icons" title="destroy vm"></i>
+                    <a href="#createVM">
+                        <i class="fa fa-plus fa-2x icons" title="create vm"></i>
+                    </a>
+            
                 </div>
-                <div id="static-list">
-                    <div class="button-bar">
-                        <i class="fa fa-refresh fa-2x icons" title="refresh list"></i>
-                        <i class="fa fa-play fa-2x icons" title="start vm"></i>
-                        <i class="fa fa-power-off fa-2x icons" title="poweroff vm"></i>
-                        <i class="fa fa-times fa-2x icons" title="destroy vm"></i>
-                        <a href="#createVM">
-                            <i class="fa fa-plus fa-2x icons" title="create vm"></i>
-                        </a>
+                <table class="pure-table inner-table">
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Cores</th>
+                            <th>Memory</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div id="network">
+                <div class="button-bar">
+                    <i class="fa fa-play fa-2x icons"></i>
+                    <i class="fa fa-stop fa-2x icons"></i>
+                    <i class="fa fa-refresh fa-2x icons"></i>
+                    <i class="fa fa-times fa-2x icons"></i>
+                    <a href="#addvm"><i class="fa fa-power-off fa-2x icons" title="add vm"></i></a>
+                    <a href="#createNet">
+                        <i class="fa fa-plus fa-2x icons"></i>
+                    </a>
+                </div>
                 
-                    </div>
-                    <table class="pure-table inner-table">
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>Name</th>
-                                <th>Status</th>
-                                <th>Cores</th>
-                                <th>Memory</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-                <div id="network">
-                    <div class="button-bar">
-                        <i class="fa fa-play fa-2x icons"></i>
-                        <i class="fa fa-stop fa-2x icons"></i>
-                        <i class="fa fa-refresh fa-2x icons"></i>
-                        <i class="fa fa-times fa-2x icons"></i>
-                        <a href="#createNet"><i class="fa fa-plus fa-2x icons"></i></a>
-                    </div>
+                
+                <table id="tab-net" class="pure-table inner-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Network Name</th>
+                            <th scope="col">On Host</th>
+                            <th scope="col">Forwarding Mode</th>
+                            <th scope="col">Bridge Name</th>
+                            <th scope="col">Autostart</th>
+                            <th scope="col">Running STATUS</th>
+                        </tr>
+                    </thead>
                     
-    
-            <table id="net" class="pure-table inner-table">
-                <thead>
-                    <tr>
-                        <th scope="col">Network Name</th>
-                        <th scope="col">On Host</th>
-                        <th scope="col">Forwarding Mode</th>
-                        <th scope="col">Bridge Name</th>
-                        <th scope="col">Autostart</th>
-                        <th scope="col">Running STATUS</th>
-                        <th scope="col">Add Vms</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-                        <style>
-			.button-vm {
-			                                color: white;
-			                                font-size: 100%;
-			                                border-radius: 4px;
-			                                text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-			                                background: rgb(28, 184, 65);
-			                                /* this is a green */
-			                            }
-		</style>
-        
+                </table>
+                        
+            </div>
+            <div id="monitoring">
+                <div class="button-bar">
+                    <i class="fa fa-refresh fa-2x icons" title="refresh list"></i>
+                    <i class="fa fa-play fa-2x icons" title="resume vm"></i>
+                    <i class="fa fa-pause fa-2x icons" title="suspend vm"></i>
+                    <i class="fa fa-stop fa-2x icons" title="shutdown vm"></i>
                 </div>
-                <div id="monitoring">
-                    <div class="button-bar">
-                        <i class="fa fa-refresh fa-2x icons" title="refresh list"></i>
-                        <i class="fa fa-play fa-2x icons" title="resume vm"></i>
-                        <i class="fa fa-pause fa-2x icons" title="suspend vm"></i>
-                        <i class="fa fa-stop fa-2x icons" title="shutdown vm"></i>
-                    </div>
-                    <table class="pure-table inner-table">
-                        <thead>
-                            <tr>
-                                <td>No.</td>
-                                <td>Name</td>
-                                <td>Persistence</td>
-                                <td><div class="chart-legend" style="background-color: #0087E0;"></div>Cpu & <div class="chart-legend" style="background-color: black;"></div>Memory Usage</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
+                <table class="pure-table inner-table">
+                    <thead>
+                        <tr>
+                            <td>No.</td>
+                            <td>Name</td>
+                            <td>Persistence</td>
+                            <td><div class="chart-legend" style="background-color: #0087E0;"></div>Cpu & <div class="chart-legend" style="background-color: black;"></div>Memory Usage</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
             </div>
         </div>
+     </div>
      <div id="createVM" style="color:#669" class="modalDialog">
             <div>
-                <a onclick="switch_tab(2)" href="#static-list" title="Close" class="close">X</a>
-    
-    
+                <a  href="#static-list" title="Close" class="close">X</a>
                 <form id="vm-form" class="pure-form pure-form-aligned" >
                     <fieldset>
                         <legend style="left:20px">
@@ -191,7 +181,6 @@
                             </div>
                         <div class="pure-control-group">
                             <label for "vcpu">No. of Virtual CPUs:</label>
-    
                             <select id="vcpu" name="vcpu" class="pure-input-1-2" required>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
@@ -200,135 +189,126 @@
                             </select>
                         </div>
                         <div class="pure-control-group">
-                            <label for="ram">
-                                RAM(in MB):</label>
-    
-                            <select id="ram" name="ram" class="pure-input-1-2" required>
-                                <option value="1">512</option>
-                                <option value="2">1024</option>
-                                <option value="3">2048</option>
-                                <option value="4">4096</option>
-                            </select>
+                            <label for="ram">RAM(in MB):</label>
+                            <input id="ram" type="text" placeholder="ram" required>
                         </div>
                         <div class="pure-control-group">
                             <label for="bootdev">Boot Device:</label>
                             <select id="bootdev" name="bootdev" class="pure-input-1-2" required>
+                                <option value="hd">Hard Disk</option>
                                 <option value="1">CD-ROM</option>
-                                <option value="2">Hard Disk</option>
                                 <option value="3">Network Boot</option>
-    
                             </select>
-    
                         </div>
                         <div class="pure-control-group">
                             <label for="os">Select OS:</label>
                             <select id="os" name="os" class="pure-input-1-2" required>
-                                <option value="1">windows</option>
-                                <option value="2">ubuntu-13.10-desktop-amd64</option>
-                                <option value="3">ubuntu-13.04-desktop-amd64</option>
+                                <option value="ubuntu-12.04.2-desktop-amd64">ubuntu-12.04.2-desktop-amd64</option>
+                                <option value="ubuntu-13.04-desktop-amd64">ubuntu-13.04-desktop-amd64</option>
                             </select>
-    
                         </div>
     
                         <input id="submit-vm" type="submit" class="submit" text="Create"/>
                     </fieldset>
                 </form>
             </div>
-    
-        </div>
-        <div id="addvm"  class="modalDialog">
-             <a href="#network" title="Close" class="close">X</a>
-            <input type="submit" class="submit" href="#network" value="Add/Remove">
-        </div>
-        <div id="createNet"  class="modalDialog">
-        <div style="color:#669">
-            <form class="pure-form pure-form-aligned" id="network-form">
-                <fieldset>
-                    <legend style="left:20px">
+     </div>
+    <div id="createNet" class="modalDialog">
+    <div style="color:#669">
+        <form class="pure-form pure-form-aligned" id="network-form">
+            <fieldset>
+                <legend style="left:20px">
+                
                         <div style="display:inline-block; margin-left:20px">
-                                <h1 style="color:#669">Create Network</h1>
-                                             
+                            <h1 style="color:#669">Create Network</h1>
                         </div>
-                    </legend>
-                    <div id="basic">
                         
-                            <h4 style="color:#669">Basic Details</h4>
-                        </br>
-                        <div class="pure-control-group">
-                            <label for="name">Network Name</label>
-                            <input id="name" type="text" placeholder="Network Name" required>
-                        </div>
-                        <div class="pure-control-group">
-                            <label for="net-host">On Host</label>
-                            <select id="net-host" name="host" required>
-    
-                            </select>
-    
-                        </div>
-    
-                        <div class="pure-control-group">
-                            <label for="mode">Forwarding Mode</label>
-                            <select id="mode" name="mode" required>
-                                <option value="1">NAT</option>
-                                <option value="2">Route</option>
-                                <option value="3">Bridge</option>
-                                <option value="4">Isolated</option>
-                            </select>
-    
-                        </div>
-                        <div class="pure-control-group">
-                            <label for="bridgename">Bridge Name</label>
-                            <input id="bridgename" type="text" placeholder="Bridge Name" required>
-                        </div>
-                        <div class="pure-control-group">
-                            <label for="dev">Network Device</label>
-                            <select id="dev" name="dev" required>
-                                <option value="1">Any</option>
-                                <option value="2">Ethernet</option>
-                                <option value="3">Wireless</option>
-                                <option value="4">DialUp</option>
-                                <option value="5">PVN</option>
-    
-                            </select>
-    
-                        </div>
-                        <div class="pure-control-group">
-                            <button  onclick="toggle()">Next</button>
-                        </div>
-                    </div>
-                    <div id="config">
-                        
-                            <h4 style="color:#669">IPv4 Configuration</h4>
-                        </br>
-                        <div class="pure-control-group">
-                            <label for="network-ip">IPv4 Address Space</label>
-                            <input id="network-ip" type="text" placeholder="" required>
-                        </div>
-                        <br>
-                        <input type="checkbox" id="dhcp" style="margin-left:10px">
-                        
-                        <label for="dhcp">Enable DHCP</label>
-                    <br>
-                <br>
-                    <div class="pure-u-1 pure-u-med-1-3">
-                            <label for="dhcpStart">Start:</label>
-                            <input id="dhcpStart" type="text" placeholder="Start IP Address" required>
-                            <label for="dhcpEnd">End:</label>
-                            <input id="dhcpEnd" type="text"  placeholder="End IP Address" required>
-                        </div>
-                        <br>
-                <br>
-                        <input type="checkbox" id="autostart">
-                        <label for="autostart">Autostart network when host machine boots</label>
+                </legend>
+                <div id="basic">
                     
-                    <input type="submit" class="submit" href="#network" value="Create">
-                </div>    
-                <a href="#network" title="Close" class="close">X</a>
-                </fieldset>
-            </form>
-        </div>
-    
+                        <h4 style="color:#669">Basic Details</h4>
+                    </br>
+                    <div class="pure-control-group">
+                        <label for="name">Network Name</label>
+                        <input id="name" type="text" placeholder="Network Name" required>
+                    </div>
+                    <div class="pure-control-group">
+                        <label for="net-host">On Host</label>
+                        <select id="net-host" name="host" required>
+
+                        </select>
+
+                    </div>
+
+                    <div class="pure-control-group">
+                        <label for="mode">Forwarding Mode</label>
+                        <select id="mode" name="mode" required>
+                            <option value="1">NAT</option>
+                            <option value="2">Route</option>
+                            <option value="3">Bridge</option>
+                            <option value="4">Isolated</option>
+                        </select>
+
+                    </div>
+                    <div class="pure-control-group">
+                        <label for="bridgename">Bridge Name</label>
+                        <input id="bridgename" type="text" placeholder="Bridge Name" required>
+                    </div>
+                    <div class="pure-control-group">
+                        <label for="dev">Network Device</label>
+                        <select id="dev" name="dev" required>
+                            <option value="1">Any</option>
+                            <option value="2">Ethernet</option>
+                            <option value="3">Wireless</option>
+                            <option value="4">DialUp</option>
+                            <option value="5">PVN</option>
+
+                        </select>
+
+                    </div>
+                    <div class="pure-control-group">
+                        <button  onclick="toggle()">Next</button>
+                    </div>
+                </div>
+                <div id="config">
+                    
+                        <h4 style="color:#669">IPv4 Configuration</h4>
+                    </br>
+                    <div class="pure-control-group">
+                        <label for="network-ip">IPv4 Address Space</label>
+                        <input id="network-ip" type="text" placeholder="" required>
+                    </div>
+                    
+                <br>
+            <br>
+                <div class="pure-u-1 pure-u-med-1-3">
+                        <label for="dhcpStart">Start:</label>
+                        <input id="dhcpStart" type="text"  placeholder="Start IP Address" required>
+                        <label for="dhcpEnd">End:</label>
+                        <input id="dhcpEnd" type="text"  placeholder="End IP Address" required>
+                    </div>
+                    <br>
+            <br>
+                    <input type="checkbox" id="autostart">
+                    <label for="autostart">Autostart network when host machine boots</label>
+                
+                <input type="submit" class="submit" value="Create">
+            </div>    
+            <a href="#network" title="Close" class="close">X</a>
+            </fieldset>
+        </form>
     </div>
-    </body>
-    <script src="@routes.Assets.at("javascripts/view.js")"></script>
+    </div>
+    <div id="addvm" style="color:#669" class="modalDialog">
+        <a  href="#network" title="Close" class="close">X</a>
+        <form id="add-vm-form" class="pure-form pure-form-aligned" >
+            <fieldset>
+                <div id="select-vms" style="font-size:150%">
+       
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</body>
+<script src="@routes.Assets.at("javascripts/view.js")"></script>
 </html>

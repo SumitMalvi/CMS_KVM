@@ -3,8 +3,10 @@
 2. add more boxes summary listing.
 3. add alert boxes to trivial functions.
 4. add confirmation boxes to non-trivial functions.
+5. check delete storage api's.
+6. correct the create vm api.
 ****************************************************************************************/
-
+var params;
 var hostName = [];
 var newTabFunctions = {
     'tab-1' : /* function */
@@ -17,8 +19,7 @@ var newTabFunctions = {
         },
     'tab-3' : /* function */
         function() {
-           
-            getNetList();
+           getNetList();
         },
     'tab-4' : /* function */
         function() {
@@ -59,8 +60,7 @@ var oldTabFunctions = {
         },
     'tab-3' : /* function */
         function() {
-           
-            removeNetList();
+           removeNetList();
         },
     'tab-4' : /* function */
         function() {
@@ -250,11 +250,33 @@ $("#monitoring .fa-pause").on("click", function (event) {
 $("#network .fa-refresh").on("click", function( event ) {
     removeNetList();
     getNetList();
+//    $("#net-host > ").remove();
+    $.ajax({
+        url: "/host/list",
+        type: "GET",
+        dataType: 'json',
+        success: function (json) {
+            var i = 0;
+            var str1 = "";
+            while (json[i++]) {
+                  //  if (!json[i + 1]) {
+                    str1 += "<option value='" + json[i-1] + "'>" + json[i-1] + "</option>";
+            //    }
+                $("#net-host").add(str1);
+            
+            }
+        },
+        error: function (xhr, status) {
+            alert("sorry there was a problem!");
+        }
+    });
+
 });
 
 $("#network .fa-play").on("click", function( event ) {
     var netName = $(".net-row-selected td:nth-child(1)").html();
-    var params = $.param({"netName": netName, "hostName": hostName[0]});
+    var host = $(".net-row-selected td:nth-child(2)").html();
+    var params = $.param({"netName": netName, "hostName": host});
     $.ajax({
         url: "/network/start?" + params,
         type: "PUT",
@@ -269,9 +291,56 @@ $("#network .fa-play").on("click", function( event ) {
     });
 });
 
+$("#network .fa-power-off").on("click", function( event ) {
+    var hostName = $(".net-row-selected td:nth-child(2)").html();
+    var bridgeName = $(".net-row-selected td:nth-child(4)").html();
+    params = '{"bridge": "'+bridgeName+'", "host": "'+hostName+'" ,';
+    $.getJSON("/vm/list/configuration?hostName=" + hostName + "&filter=2", function( resp ) {
+        var propList = [], str = "";
+        var temp;
+        
+        for( var prop in resp[0] ) {
+            if( prop != undefined ) propList.push(prop);
+        }
+        
+        for( var i = 0; i < resp.length ; i++ ){
+            str+="<label for=\"vm-"+i+"\" class=\"pure-checkbox\">  <input id=\"vm-"+i+"\" type=\"checkbox\" value=\""+resp[i][propList[0]]+"\">" + resp[i][propList[0]] + "  </label> <br>";
+             
+            }
+        
+        $("#select-vms").append(str);
+    });
+});
+
+$('#add-vm-form').on("submit",function () {
+    params+='"vms":[';
+    $("#select-vms").find("checkbox").each(function(){
+        if ($(this).prop('checked')==true){ 
+            params += '{"vm":"'+$(this).val()+'"},';
+        }
+        params+=']}';    
+    });
+        
+    console.log(params);
+	    
+    $.ajax({
+        url: "/network/addvm",
+        type: "POST",
+        dataType: 'text',
+        data : params,
+        success: function () {
+            console.log( "added" );
+        },
+        error: function (xhr, status) {
+            alert("sorry there was a problem!");
+        }
+    });
+});
+
 $("#network .fa-times").on("click", function( event ) {
     var netName = $(".net-row-selected td:nth-child(1)").html();
-    var params = $.param({"netName": netName, "hostName": hostName[0]});
+    var host = $(".net-row-selected td:nth-child(2)").html();
+    var params = $.param({"netName": netName, "hostName": host});
     $.ajax({
         url: "/network/delete?" + params,
         type: "DELETE",
@@ -289,7 +358,8 @@ $("#network .fa-times").on("click", function( event ) {
 
 $("#network .fa-stop").on("click", function( event ) {
     var netName = $(".net-row-selected td:nth-child(1)").html();    
-    var params = $.param({"netName": netName, "hostName": hostName[0]});
+    var host = $(".net-row-selected td:nth-child(2)").html();
+    var params = $.param({"netName": netName, "hostName": host});
     $.ajax({
         url: "/network/stop?" + params,
         type: "PUT",
@@ -428,33 +498,32 @@ function getNetList(elem){
 		success: function (json) {
 			$("#network table tbody").remove();
 			var str = "<tbody>";
-           
+        //  var str=""; 
             var propList = [];
         
         for( var prop in json[0] ) {
             if( prop != undefined ) propList.push(prop);
         }    
-			for( var i = 0; i < json.length ; i++ ) {
-                 console.log("Bind successful");
-				
-				for( var j = 0; j < propList.length ; j++ ) {
+        for( var i = 0; i < json.length ; i++ ) {
+            console.log("Bind successful");
+			str+="<tr>";
+			for( var j = 0; j < propList.length ; j++ ) {
                 str += "	<td>"+json[i][propList[j]]+"</td >";
+            }
                 
-                }
-                
-                str += "<td><a href=\"#addvm\"><button id=\""+json[i][propList[0]]+"\" class=\"button-vm pure-button\" href=\"#addvm\"><span style=\"font-style:bold\">Add VMs</span></button> </a>  </td>";
-
-				str+="	</tr>";
-				
+                /*str += "<td><a href=\"#addvm\"><button id=\""+json[i][propList[0]]+"\" class=\"button-vm pure-button\" href=\"#addvm\"><span style=\"font-style:bold\">Add VMs</span></button> </a>  </td>";
+*/
+        str+="	</tr>";
+				console.log(str);
 
 		}
 		str+="</tbody>";
-		$("#net").append(str);
+		$("#tab-net").append(str);
         
         },
 	error: function (xhr, status) {
 		alert("sorry there was a problem!");
-	},
+	}
 })
 };
 
@@ -580,9 +649,9 @@ $.ajax({
         var str1 = "";
         while (json[i++]) {
             str += "<li class=\"ui-widget-content\">" + json[i - 1] + "</li>";
-            if (!json[i + 1]) {
+          //  if (!json[i + 1]) {
 				str1 += "<option value='" + json[i - 1] + "'>" + json[i - 1] + "</option>";
-            }
+        //    }
             $("#net-host").append(str1);
             $("#selectable").append(str);
         }
@@ -603,7 +672,7 @@ $("#static-list table.inner-table > tbody").on("click", "tr", function( event ) 
 
 /**************************** Network table selection ************************************************/
 
-$("#network table.inner-table > tbody").on("click", "tr", function( event ) {
+$("#network table.inner-table").on("click", "tr", function( event ) {
     $(".net-row-selected").removeClass("net-row-selected");
     $( this ).addClass("net-row-selected");
     console.log("row selected");
@@ -660,50 +729,33 @@ Google like footnotes to be implemented using this.
 
 /*********************Create vm ****************************/
 $('#vm-form').on("submit",function () {
-    var VMParam = {
-        name: document.getElementById("vm-name ").textContent,
-        vcpu:document.getElementById("vcpu").value,
-        os: document.getElementById("os").value,
-        bootdev: document.getElementById("bootdev ").value,
-        memory: document.getElementById("ram ").value
-    };
-    console.log(VMParam);
+var param = '{"vmName": "' + $("#vm-name").val() + '", "vcpu": ' + $("#vcpu").val() + ', "memory": ' + $("#ram").val() + ', "bootType": "' + $("#bootdev").val() + '", "iso": "' + $("#os").val() + '"}';
+    console.log(param);
 	$.ajax({
-		url: '/vm/create',
+		url: '/vm/create?hostName=' + hostName[0],
 		type: 'POST',
 		contentType: 'application/json',
-		//datatype: 'json',
-		data: 'VMParam',
-		success: function (data, textStatus, jqXHR) {
-			alert("VM Created Succesfully !! ");
-			
-		},
+		datatype: 'text',
+		data: param,
+		success: function (resp) {
+			alert(resp);
+        },
 		error: function (xhr, status) {
 			alert("	Sorry VM can not be created!");
 		},
-	})
+	});
 });
 
 $('#network-form').on("submit",function () {
 //event.preventDefault();
-    var NetParam = {
-	name: document.getElementById("name").textContent,
-	host:document.getElementById("net-host").value,
-	mode: document.getElementById("mode").value,
-	bridgename: document.getElementById("bridgename").textContent,
-	dev: document.getElementById("dev ").value,
-	ipv: document.getElementsByName("ipv ").textContent,
-	addrstart: document.getElementById("addrstart").textContent,
-	addrend: document.getElementById("addrend").textContent,
-	autostart: document.querySelector('#autostart:checked').value
-};
+    var NetParam = '{"name": "' + $("#name").val() + '", "host": " ' +$("#net-host").val()+ '", "mode": "' + $("#mode").val() + '", "bridgename": "' + $("#bridgename").val() + '", "dev": "' + $("#dev").val() + '",  "ipv": "' + $("#ipv ").val() + '",  "addrstart": "' + $("#addrstart").val() +'",  "addrend": "' + $("#addrend").val() +'",  "autostart": "' + document.querySelector("#autostart:checked").value +'"  }';
     console.log(NetParam);
 	$.ajax({
 		url: 'network/create',
 		type: 'POST',
 		contentType: 'application/json',
-		//datatype: 'json',
-		data: 'NetParam',
+		datatype: 'text',
+		data: NetParam,
 		success: function (data, textStatus, jqXHR) {
 			alert("Network Created Succesfully !! ");
 			
@@ -711,7 +763,24 @@ $('#network-form').on("submit",function () {
 		error: function (xhr, status) {
 			alert("	Sorry Network can not be created!");
 			
-		},
-	})
+		}
+	});
+});    
+/****************** storage listing ******************************/
+
+$(".storage-list").on("click", "> li > div >i.fa", function (event) {
+    $(this).parent().siblings("ol").slideToggle();
+    $(this).parent().find("i").toggleClass("fa-caret-right");
+}); 
+
+$(".storage-list").on("click", ">li >div >span", function (event) {
+    $(".storage-row-selected").removeClass("storage-row-selected");
+    $(this).parent().addClass("storage-row-selected");
 });
+
+$(".storage-list").on("click", " ol >li", function (event) {
+    $(".storage-row-selected").removeClass("storage-row-selected");
+    $(this).addClass("storage-row-selected");
+});
+    
 
