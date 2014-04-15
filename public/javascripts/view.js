@@ -262,7 +262,7 @@ $("#network .fa-refresh").on("click", function( event ) {
                   //  if (!json[i + 1]) {
                     str1 += "<option value='" + json[i-1] + "'>" + json[i-1] + "</option>";
             //    }
-                $("#net-host").add(str1);
+                $("#net-host").html(str1);
             
             }
         },
@@ -291,7 +291,7 @@ $("#network .fa-play").on("click", function( event ) {
     });
 });
 
-$("#network .fa-power-off").on("click", function( event ) {
+$("#network .fa-plus-circle").on("click", function( event ) {
     var hostName = $(".net-row-selected td:nth-child(2)").html();
     var bridgeName = $(".net-row-selected td:nth-child(4)").html();
     params = '{"bridge": "'+bridgeName+'", "host": "'+hostName+'" ,';
